@@ -39,9 +39,9 @@
     "build": "tsup",
     "release": "pnpm build && changeset publish",
     "start": "node dist/cli.js",
-    "lint": "eslint .",
-    "format:write": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint": "eslint \"src/**/*.{ts,tsx,js,jsx}\"",
+    "format:write": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
