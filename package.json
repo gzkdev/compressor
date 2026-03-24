@@ -1,6 +1,6 @@
 {
   "name": "@gzkdev/compress",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A lightning-fast, beautifully animated CLI image compressor that natively optimizes images using sharp.",
   "keywords": [
     "image",
