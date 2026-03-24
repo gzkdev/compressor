@@ -32,5 +32,6 @@ yarn-error.log*
 *.pem
 
 # Artifacts
-output/
+compressed/
 tests/
+.pnpm-store/
