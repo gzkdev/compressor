@@ -1,11 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
+import { optimize } from "svgo";
 
 export interface ProcessorOptions {
   quality?: number | undefined;
   outDir?: string | undefined;
   isBatch?: boolean | undefined;
+  overwrite?: boolean | undefined;
 }
 
 export interface ProcessingResult {
@@ -28,26 +30,45 @@ export async function processImage(
 
   let outputPath: string;
 
-  if (options.outDir) {
+  if (options.overwrite) {
+    outputPath = filePath;
+  } else if (options.outDir) {
     // Explicit --out-dir flag overrides
     outputPath = path.join(
       path.resolve(options.outDir),
       `${parsed.name}${targetFormatExt}`,
     );
   } else if (options.isBatch) {
-    // Batch Mode: Auto-create ./output/
-    const defaultBatchDir = path.join(process.cwd(), "output");
+    // Batch Mode: Auto-create ./compressed/
+    const defaultBatchDir = path.join(process.cwd(), "compressed");
     outputPath = path.join(defaultBatchDir, `${parsed.name}${targetFormatExt}`);
   } else {
     // Single File Mode
     outputPath = path.join(
       parsed.dir,
-      `${parsed.name}-optimized${targetFormatExt}`,
+      `${parsed.name}.compressed${targetFormatExt}`,
     );
   }
 
   // Ensure whatever directory we chose actually exists
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
+
+  if (targetFormatExt === ".svg") {
+    const svgString = await fs.readFile(filePath, "utf-8");
+    const result = optimize(svgString, {
+      path: filePath,
+      multipass: true,
+    });
+
+    await fs.writeFile(outputPath, result.data);
+    const infoSize = Buffer.byteLength(result.data, "utf8");
+
+    return {
+      outputPath,
+      originalSize: originalStat.size,
+      newSize: infoSize,
+    };
+  }
 
   const pipeline = sharp(filePath);
 
@@ -83,8 +104,15 @@ export async function processImage(
       break;
   }
 
+  const isOverwriting = options.overwrite && outputPath === filePath;
+  const tempPath = isOverwriting ? `${outputPath}.tmp` : outputPath;
+
   // Flush to disk
-  const info = await pipeline.toFile(outputPath);
+  const info = await pipeline.toFile(tempPath);
+
+  if (isOverwriting) {
+    await fs.rename(tempPath, outputPath);
+  }
 
   return {
     outputPath,
