@@ -1,2 +1,2 @@
-pnpm run format
+pnpm run format:write
 pnpm run lint
