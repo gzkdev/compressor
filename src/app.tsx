@@ -1,12 +1,12 @@
+import { ShimmerSpinner } from "@/components/spinner";
+import type { ProcessingResult } from "@/processors/image";
 import { Box, Text } from "ink";
 import logSymbols from "log-symbols";
-import { ShimmerSpinner } from "./components/spinner";
-import type { ProcessingResult } from "./processors/image";
 
 interface AppProps {
   files?: string[];
   currentIndex?: number;
-  status: "scanning" | "processing" | "done";
+  status: "scanning" | "processing" | "done" | "watching";
   stats?: ProcessingResult[];
 }
 
@@ -105,6 +105,24 @@ export function App({
         <ShimmerSpinner />
         <Box paddingLeft={1}>
           <Text bold>Scanning file system...</Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  if (status === "watching") {
+    return (
+      <Box padding={1} flexDirection="column">
+        <Box gap={1}>
+          <ShimmerSpinner />
+          <Text bold color="cyan">
+            Watching for new files...
+          </Text>
+        </Box>
+        <Box paddingLeft={3}>
+          <Text color="gray" dimColor>
+            (Press Ctrl+C to exit)
+          </Text>
         </Box>
       </Box>
     );
