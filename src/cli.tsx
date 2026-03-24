@@ -9,6 +9,7 @@ import { render } from "ink";
 import logSymbols from "log-symbols";
 import meow from "meow";
 import path from "node:path";
+import pMap from "p-map";
 
 const cli = meow(
   `
@@ -21,6 +22,7 @@ const cli = meow(
     --quality, -q Quality level (e.g. 80)
     --watch, -w   Watch input files and auto-process on changes
     --overwrite   Overwrite the original files directly
+    --resize      Resize large structures down (e.g. 1920x1080 or 1920x)
     --help        Show this help message
 
   Examples
@@ -51,6 +53,9 @@ const cli = meow(
       overwrite: {
         type: "boolean",
       },
+      resize: {
+        type: "string",
+      },
     },
   },
 );
@@ -63,6 +68,7 @@ async function run() {
   const finalOutDir = (cli.flags.outDir as string | undefined) || config.outDir;
   const finalQuality =
     (cli.flags.quality as number | undefined) || config.quality;
+  const finalResize = (cli.flags.resize as string | undefined) || config.resize;
 
   if (watchMode && finalOverwrite) {
     console.error(
@@ -101,28 +107,35 @@ async function run() {
   const stats: ProcessingResult[] = [];
 
   const processFiles = async (filesToProcess: string[]) => {
-    for (let i = 0; i < filesToProcess.length; i++) {
-      rerender(
-        <App
-          status="processing"
-          files={filesToProcess}
-          currentIndex={i}
-          stats={stats}
-        />,
-      );
-
-      try {
-        const result = await processImage(filesToProcess[i] as string, {
-          outDir: finalOutDir,
-          quality: finalQuality,
-          overwrite: finalOverwrite,
-          isBatch,
-        });
-        stats.push(result);
-      } catch {
-        continue;
-      }
-    }
+    let processedCount = 0;
+    await pMap(
+      filesToProcess,
+      async (filePath) => {
+        try {
+          const result = await processImage(filePath, {
+            outDir: finalOutDir,
+            quality: finalQuality,
+            overwrite: finalOverwrite,
+            resize: finalResize,
+            isBatch,
+          });
+          stats.push(result);
+        } catch {
+          // Skip invalid files silently
+        } finally {
+          processedCount++;
+          rerender(
+            <App
+              status="processing"
+              files={filesToProcess}
+              processedCount={processedCount}
+              stats={stats}
+            />,
+          );
+        }
+      },
+      { concurrency: 10 },
+    );
   };
 
   if (uniqueFiles.length > 0) {
@@ -152,9 +165,9 @@ async function run() {
       // Prevent infinite loops by blocking output directory watch triggers
       if (finalOutDir && filePath.includes(finalOutDir)) return;
       if (
-        filePath.includes("output") ||
+        filePath.includes("compressed") ||
         filePath.includes("compressor") ||
-        filePath.includes(".optimized")
+        filePath.includes(".compressed")
       )
         return;
 
