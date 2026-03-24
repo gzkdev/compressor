@@ -5,7 +5,7 @@ import logSymbols from "log-symbols";
 
 interface AppProps {
   files?: string[];
-  currentIndex?: number;
+  processedCount?: number;
   status: "scanning" | "processing" | "done" | "watching";
   stats?: ProcessingResult[];
 }
@@ -20,7 +20,7 @@ function formatBytes(bytes: number) {
 
 export function App({
   files = [],
-  currentIndex = 0,
+  processedCount = 0,
   status,
   stats = [],
 }: AppProps) {
@@ -65,7 +65,7 @@ export function App({
             borderColor="cyan"
             paddingX={2}
           >
-            <Text bold color="cyan">
+            <Text bold color="cyanBright">
               Compression Summary
             </Text>
 
@@ -81,7 +81,7 @@ export function App({
               <Box marginTop={1}>
                 <Text>
                   <Text color="gray">Efficiency: </Text>
-                  <Text color={isWorse ? "red" : "green"} bold>
+                  <Text color={isWorse ? "redBright" : "greenBright"} bold>
                     {isWorse ? "+" : "-"}
                     {Math.abs(Number(percentage))}%
                   </Text>
@@ -92,6 +92,19 @@ export function App({
                   </Text>
                 </Text>
               </Box>
+
+              {!isWorse && savedBytes > 0 && (
+                <Box marginTop={1}>
+                  <Text>
+                    <Text color="cyanBright">
+                      Est. CDN Bandwidth Savings (10k views):{" "}
+                    </Text>
+                    <Text bold color="white">
+                      {formatBytes(savedBytes * 10000)}
+                    </Text>
+                  </Text>
+                </Box>
+              )}
             </Box>
           </Box>
         )}
@@ -139,7 +152,7 @@ export function App({
       {files.length > 0 && (
         <Box paddingLeft={3}>
           <Text color="gray" dimColor>
-            [{currentIndex + 1}/{files.length}] {files[currentIndex]}
+            [{processedCount}/{files.length}] files processed
           </Text>
         </Box>
       )}
