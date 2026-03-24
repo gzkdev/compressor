@@ -7,6 +7,7 @@ export interface CompressorConfig {
   quality?: number;
   watch?: boolean;
   overwrite?: boolean;
+  resize?: string;
 }
 
 const explorer = cosmiconfig("compressor");

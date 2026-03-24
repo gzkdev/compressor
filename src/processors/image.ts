@@ -8,6 +8,7 @@ export interface ProcessorOptions {
   outDir?: string | undefined;
   isBatch?: boolean | undefined;
   overwrite?: boolean | undefined;
+  resize?: string | undefined;
 }
 
 export interface ProcessingResult {
@@ -71,6 +72,16 @@ export async function processImage(
   }
 
   const pipeline = sharp(filePath);
+
+  if (options.resize) {
+    const [widthStr, heightStr] = options.resize.toLowerCase().split("x");
+    pipeline.resize({
+      width: widthStr ? parseInt(widthStr, 10) : undefined,
+      height: heightStr ? parseInt(heightStr, 10) : undefined,
+      fit: "inside", // Retain aspect ratio perfectly without destructive cropping
+      withoutEnlargement: true, // Only scale down natively, NEVER expand pixel grids
+    });
+  }
 
   // Apply formatting dynamically depending on native extension
   switch (targetFormatExt) {
