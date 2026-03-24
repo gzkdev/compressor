@@ -1,32 +1,67 @@
 {
   "name": "@gzkdev/compress",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A lightning-fast, beautifully animated CLI image compressor that natively optimizes images using sharp.",
+  "keywords": [
+    "image",
+    "compress",
+    "cli",
+    "ink",
+    "sharp",
+    "optimization"
+  ],
+  "homepage": "https://github.com/gzkdev/compressor#readme",
+  "bugs": {
+    "url": "https://github.com/gzkdev/compressor/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gzkdev/compressor.git"
+  },
+  "license": "ISC",
+  "author": "gzkdev",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js"
+    }
+  },
+  "main": "dist/cli.js",
+  "types": "dist/cli.d.ts",
+  "bin": {
+    "compress": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "release": "pnpm build && changeset publish",
+    "start": "node dist/cli.js",
     "lint": "eslint .",
-    "format": "prettier --write .",
+    "format:write": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "prepare": "husky"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.28.1",
   "dependencies": {
     "ink": "^6.8.0",
+    "ink-spinner": "^5.0.0",
+    "log-symbols": "^7.0.1",
     "meow": "^14.1.0",
     "react": "^19.2.4",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.30.0",
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
     "@eslint/js": "^10.0.1",
-    "@types/eslint__js": "^9.14.0",
     "@types/node": "^25.4.0",
     "@types/react": "^19.2.14",
     "eslint": "^10.0.3",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.1",
@@ -34,5 +69,6 @@
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.0"
-  }
+  },
+  "packageManager": "pnpm@10.28.1"
 }

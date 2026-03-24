@@ -1,9 +1,10 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.tsx"],
+  entry: ["src/cli.tsx"],
   format: ["esm"],
+  dts: true,
   target: "node18",
   clean: true,
-  minify: true,
+  minify: false,
 });
