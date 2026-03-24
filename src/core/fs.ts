@@ -1,7 +1,9 @@
+import chalk from "chalk";
+import logSymbols from "log-symbols";
 import fs from "node:fs/promises";
 import { extname, join, resolve } from "node:path";
 
-const SUPPORTED_FORMATS = new Set([
+export const SUPPORTED_FORMATS = new Set([
   ".webp",
   ".jpeg",
   ".jpg",
@@ -9,10 +11,8 @@ const SUPPORTED_FORMATS = new Set([
   ".avif",
   ".gif",
   ".tiff",
+  ".svg",
 ]);
-
-const RED = "\x1b[31m";
-const RESET = "\x1b[0m";
 
 export async function getFilesToProcess(targetPath: string): Promise<string[]> {
   const absolutePath = resolve(targetPath);
@@ -32,13 +32,15 @@ export async function getFilesToProcess(targetPath: string): Promise<string[]> {
   } catch (error: unknown) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       console.error(
-        `${RED}Error: The path "${targetPath}" does not exist.${RESET}`,
+        `${logSymbols.error} ${chalk.red(`Error: The path "${targetPath}" does not exist.`)}`,
       );
       process.exit(1);
     }
 
     const msg = error instanceof Error ? error.message : String(error);
-    console.error(`${RED}Error reading path: ${msg}${RESET}`);
+    console.error(
+      `${logSymbols.error} ${chalk.red(`Error reading path: ${msg}`)}`,
+    );
     process.exit(1);
   }
 }
